@@ -88,7 +88,6 @@ int main() {
     }
     printf("\n");
 
-    // 추가 기능들
     printInventory(inventory, product_count);
 
     calculateTotalSales(sales, product_count, &total_sales, &sales_rate, &total_stock);
