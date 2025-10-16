@@ -1,0 +1,145 @@
+#include <stdio.h>
+#include <string.h>
+
+#define MAX_PRODUCTS 5
+
+typedef struct {
+    char id[20];
+    char name[50];
+    int price;
+    int stock;
+    int sold;
+} Product;
+
+Product products[MAX_PRODUCTS];
+int productCount = 0;
+
+
+int findProductIndex(char* id) {
+    for (int i = 0; i < productCount; i++) {
+        if (strcmp(products[i].id, id) == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+void 입고() {
+    if (productCount >= MAX_PRODUCTS) {
+        printf("상품 개수 초과! 등록할 수 없습니다.\n");
+        return;
+    }
+
+    char id[20];
+    printf("상품ID 입력: ");
+    scanf("%s", id);
+
+    int index = findProductIndex(id);
+
+    if (index != -1) {
+        int 추가입고, 새가격;
+        printf("입고수량 입력: ");
+        scanf("%d", &추가입고);
+        printf("판매가격 입력: ");
+        scanf("%d", &새가격);
+        products[index].stock += 추가입고;
+        products[index].price = 새가격;
+        printf("기존 상품 정보가 업데이트되었습니다.\n");
+    }
+    else {
+        strcpy(products[productCount].id, id);
+        printf("상품명 입력: ");
+        scanf("%s", products[productCount].name);
+        printf("입고수량 입력: ");
+        scanf("%d", &products[productCount].stock);
+        printf("판매가격 입력: ");
+        scanf("%d", &products[productCount].price);
+        products[productCount].sold = 0;
+        productCount++;
+        printf("새 상품이 등록되었습니다.\n");
+    }
+}
+
+void 판매() {
+    char id[20];
+    printf("상품ID 입력: ");
+    scanf("%s", id);
+    int index = findProductIndex(id);
+
+    if (index == -1) {
+        printf("해당 상품이 존재하지 않습니다.\n");
+        return;
+    }
+
+    int 수량;
+    printf("판매수량 입력: ");
+    scanf("%d", &수량);
+
+    int 재고 = products[index].stock - products[index].sold;
+    if (수량 > 재고) {
+        printf("재고 부족! 현재 재고: %d\n", 재고);
+    }
+    else {
+        products[index].sold += 수량;
+        printf("판매가 완료되었습니다.\n");
+    }
+}
+
+void 개별현황() {
+    char id[20];
+    printf("상품ID 입력: ");
+    scanf("%s", id);
+    int index = findProductIndex(id);
+
+    if (index == -1) {
+        printf("해당 상품이 존재하지 않습니다.\n");
+        return;
+    }
+
+    Product p = products[index];
+    int 재고 = p.stock - p.sold;
+    int 총판매금액 = p.price * p.sold;
+
+    printf("상품명: %s, 가격: %d, 입고량: %d, 판매량: %d, 재고: %d, 총판매금액: %d\n",
+        p.name, p.price, p.stock, p.sold, 재고, 총판매금액);
+}
+
+void 전체현황() {
+    if (productCount == 0) {
+        printf("등록된 상품이 없습니다.\n");
+        return;
+    }
+
+    for (int i = 0; i < productCount; i++) {
+        Product p = products[i];
+        int 재고 = p.stock - p.sold;
+        int 총판매금액 = p.price * p.sold;
+
+        printf("[%s] %s | 가격: %d | 입고: %d | 판매: %d | 재고: %d | 총판매금액: %d\n",
+            p.id, p.name, p.price, p.stock, p.sold, 재고, 총판매금액);
+    }
+}
+
+int main() {
+    int choice;
+
+    while (1) {
+        printf("\n메뉴 선택 (1. 입고, 2. 판매, 3. 개별현황, 4. 전체현황, 5. 종료): ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+        case 1: 입고(); break;
+        case 2: 판매(); break;
+        case 3: 개별현황(); break;
+        case 4: 전체현황(); break;
+        case 5:
+            printf("프로그램을 종료합니다.\n");
+            return 0;
+        default:
+            printf("잘못된 메뉴입니다.\n");
+            break;
+        }
+    }
+
+    return 0;
+}
