@@ -1,0 +1,139 @@
+#include <stdio.h>
+#include <string.h>
+
+#define MAX_ITEM 5
+
+typedef struct {
+    int code;
+    char title[20];
+    int cost;
+    int qty;
+    int sold;
+    int income;
+} Item;
+
+Item items[MAX_ITEM];
+int n_items = 0;
+
+int getIndex(int code) {
+    for (int i = 0; i < n_items; i++) {
+        if (items[i].code == code)
+            return i;
+    }
+    return -1;
+}
+
+void addItem() {
+    if (n_items >= MAX_ITEM) {
+        printf("등록 가능한 상품 수를 초과했습니다!\n");
+        return;
+    }
+
+    int code, stock, price;
+    char name[20];
+
+    printf("상품 코드 입력 : ");
+    scanf("%d", &code);
+
+    int idx = getIndex(code);
+
+    printf("상품명 입력 : ");
+    scanf("%s", name);
+    printf("입고 수량 입력 : ");
+    scanf("%d", &stock);
+    printf("판매 단가 입력 : ");
+    scanf("%d", &price);
+
+    if (idx == -1) {
+        items[n_items].code = code;
+        strcpy(items[n_items].title, name);
+        items[n_items].cost = price;
+        items[n_items].qty = stock;
+        items[n_items].sold = 0;
+        items[n_items].income = 0;
+        n_items++;
+        printf("신규 상품이 등록되었습니다.\n");
+    } else {
+        strcpy(items[idx].title, name);
+        items[idx].qty += stock;
+        items[idx].cost = price;
+        printf("기존 상품이 수정되었습니다.\n");
+    }
+}
+
+void sellItem() {
+    int code, num;
+    printf("판매할 상품 코드 : ");
+    scanf("%d", &code);
+
+    int idx = getIndex(code);
+    if (idx == -1) {
+        printf("존재하지 않는 상품입니다.\n");
+        return;
+    }
+
+    printf("판매 수량 입력 : ");
+    scanf("%d", &num);
+
+    if (items[idx].qty < num) {
+        printf("재고가 부족합니다. 현재 재고 : %d개\n", items[idx].qty);
+        return;
+    }
+
+    items[idx].qty -= num;
+    items[idx].sold += num;
+    items[idx].income += num * items[idx].cost;
+
+    printf("[%s] 상품이 %d개 판매되었습니다.\n", items[idx].title, num);
+}
+
+void showItem() {
+    int code;
+    printf("조회할 상품 코드 : ");
+    scanf("%d", &code);
+
+    int idx = getIndex(code);
+    if (idx == -1) {
+        printf("해당 상품을 찾을 수 없습니다.\n");
+        return;
+    }
+
+    printf("--------------------------------------------------\n");
+    printf("코드:%d | 이름:%s | 단가:%d | 재고:%d | 판매:%d | 매출:%d\n",
+           items[idx].code, items[idx].title, items[idx].cost,
+           items[idx].qty, items[idx].sold, items[idx].income);
+    printf("--------------------------------------------------\n");
+}
+
+void showAll() {
+    if (n_items == 0) {
+        printf("등록된 상품이 없습니다.\n");
+        return;
+    }
+
+    printf("\n============= 전체 상품 목록 =============\n");
+    for (int i = 0; i < n_items; i++) {
+        printf("코드:%d | 이름:%s | 단가:%d | 재고:%d | 판매:%d | 매출:%d\n",
+               items[i].code, items[i].title, items[i].cost,
+               items[i].qty, items[i].sold, items[i].income);
+    }
+    printf("==========================================\n");
+}
+
+int main() {
+    int menu;
+
+    while (1) {
+        printf("\n메뉴 선택 (1.입고  2.판매  3.상품조회  4.전체조회  5.종료) : ");
+        scanf("%d", &menu);
+
+        switch (menu) {
+            case 1: addItem(); break;
+            case 2: sellItem(); break;
+            case 3: showItem(); break;
+            case 4: showAll(); break;
+            case 5: printf("프로그램을 종료합니다.\n"); return 0;
+            default: printf("잘못된 메뉴입니다. 다시 입력하세요.\n");
+        }
+    }
+}
